@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
 
-    <script type="text/javascript">
-
-        $('#update').click(function() {
-            $('#counter').html(function(i, val) { return val*1+1 });
+    <script>
+        window.addEventListener('load', () => {
+            axios.get('http://localhost:8080/count', {})
+                .then(function (response) {
+                    document.getElementById('counter').innerText = response.data.value;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
         });
-
     </script>
-    <button id="update">Button</button>
-    <div id="counter">Clicked <p th:text="${count}"></p> times</div>
-    <script type="text/javascript"
-            src="webjars/jquery/2.2.4/jquery.min.js"></script>
+    <span class="align-middle">
 
-<!--    <script type="text/javascript" src="/static.js/main.js"></script>script-->
+    </span>
+    <div class="height: 200px; col-md-12 text-center align-self-center mx-auto">
+            <button class="btn btn-primary btn-lg" id="update" onclick="function updateCount() {
+            axios.post('http://localhost:18001/click', {})
+                .then(function (response) {
+                    document.getElementById('counter').innerText = response.data.value;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+        updateCount()">Button</button>
+            <div id="counter"></div>
+    </div>
 
 </body>
 </html>
