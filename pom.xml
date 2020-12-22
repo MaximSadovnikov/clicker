@@ -16,12 +16,24 @@
 
 	<properties>
 		<java.version>11</java.version>
+		<postgresql.jdbc.version>9.4.1208</postgresql.jdbc.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>2.2.4</version>
 		</dependency>
 
 		<dependency>
@@ -47,7 +59,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>9.4.1208</version>
+			<version>${postgresql.jdbc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase</groupId>

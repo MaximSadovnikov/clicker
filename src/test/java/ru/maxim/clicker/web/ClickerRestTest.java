@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ClickerRestTest {
 
     @MockBean
-    CounterService service/* = Mockito.mock(CounterService.class)*/;
+    CounterService service;
 
     @Autowired
     private MockMvc restCounterMockMvc;

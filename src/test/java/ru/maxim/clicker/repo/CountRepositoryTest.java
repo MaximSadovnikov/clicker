@@ -1,42 +1,84 @@
 package ru.maxim.clicker.repo;
 
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.PostgreSQLContainer;
 import ru.maxim.clicker.repo.model.CountEntity;
 import ru.maxim.clicker.repo.repository.HibernateCountRepository;
 
-import javax.persistence.EntityManager;
-import javax.sql.DataSource;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {CountRepositoryTest.Initializer.class})
 public class CountRepositoryTest {
-    @Autowired private DataSource dataSource;
-    @Autowired private JdbcTemplate jdbcTemplate;
-    @Autowired private EntityManager entityManager;
-    @Autowired private HibernateCountRepository repository;
 
-    private final CounterRepository counterRepository = new CounterRepository(repository);
+    @ClassRule
+    public static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres")
+            .withDatabaseName("postgres")
+            .withUsername("postgres")
+            .withPassword("docker");
 
-    @Test
-    public void successGetCount() {
-        when(repository.getCounter()).thenReturn(new CountEntity(1));
-        when(repository.createCounter()).thenReturn(new CountEntity(1));
-        CountEntity result = counterRepository.getCount();
-        assertThat(result.getCount()).isEqualTo(1);
+    @Value("http://localhost:${local.server.port}")
+    String baseUrl;
+
+    @Autowired
+    HibernateCountRepository repository;
+
+    @AfterEach
+    public void after() {
+        repository.deleteAll();
     }
 
     @Test
-    public void failGetCount() {
-        when(repository.getCounter()).thenReturn(new CountEntity(null));
-        CountEntity result = counterRepository.getCount();
-        assertThat(result.getCount()).isEqualTo(1);
+    public void createCounter() {
+        CountEntity result = repository.createCounter();
+        assertThat(result.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void updateCounterBYMultipleUsers() throws InterruptedException {
+        int usersNum = 5;
+        int clicksByEveryUser = 5;
+
+        Runnable task = () -> {
+            for (int i = 0; i < clicksByEveryUser; i++) {
+                repository.updateCounter();
+            }
+        };
+        CountEntity createResult = repository.createCounter();
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        for (int i = 0; i < usersNum; i++) {
+            executor.execute(task);
+        }
+        executor.awaitTermination(10, TimeUnit.SECONDS);
+        CountEntity result = repository.getCounter();
+        assertThat(result.getCount()).isEqualTo(createResult.getCount() + clicksByEveryUser * usersNum);
+    }
+
+    static class Initializer
+            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            TestPropertyValues.of(
+                    "spring.datasource.url=" + postgres.getJdbcUrl(),
+                    "spring.datasource.username=" + postgres.getUsername(),
+                    "spring.datasource.password=" + postgres.getPassword()
+            ).applyTo(configurableApplicationContext.getEnvironment());
+        }
     }
 }

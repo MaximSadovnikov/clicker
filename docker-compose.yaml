@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    hostname: db
+    ports:
+      - 5432:5432
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=counter
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=password
+    networks:
+      - backend
+
+
+networks:
+  backend:
+
