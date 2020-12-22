@@ -24,7 +24,7 @@
     </span>
     <div class="height: 200px; col-md-12 text-center align-self-center mx-auto">
             <button class="btn btn-primary btn-lg" id="update" onclick="function updateCount() {
-            axios.post('http://localhost:18001/click', {})
+            axios.post('http://localhost:8080/click', {})
                 .then(function (response) {
                     document.getElementById('counter').innerText = response.data.value;
                 })
