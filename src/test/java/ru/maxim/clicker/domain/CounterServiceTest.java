@@ -1,7 +1,7 @@
 package ru.maxim.clicker.domain;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mockito;
 import ru.maxim.clicker.repo.CounterRepository;
 import ru.maxim.clicker.repo.model.CountEntity;
 
@@ -10,8 +10,7 @@ import static org.mockito.Mockito.when;
 
 public class CounterServiceTest {
 
-    @MockBean
-    private CounterRepository counterRepository;
+    private final CounterRepository counterRepository = Mockito.mock(CounterRepository.class);
 
     CounterService service = new CounterService(counterRepository);
 

@@ -15,6 +15,7 @@ import ru.maxim.clicker.domain.CounterService;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
@@ -41,8 +42,10 @@ class ClickerRestTest {
 
     @Test
     void getClickSuccess() throws Exception {
-        when(service.getNumOfClicks()).thenReturn(new Count(1));
-        restCounterMockMvc.perform(get("/click")
+        when(service.makeClick()).thenReturn(new Count(1));
+        restCounterMockMvc.perform(post("/click")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
